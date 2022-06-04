@@ -1,0 +1,49 @@
+{% extends 'home.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% load static %}
+
+<!-- Center -->
+<div class="content">
+
+
+
+    <!-- Tweets -->
+    <div id="tweetCards">
+        <div class="tweet-wrap" style="width: 400px; border-radius:20px">
+            <div class="tweet-header">
+                <img src="{% static 'img/tony.jpg' %}" alt="" class="avator">
+                <div class="tweet-header-info">
+                    <p>{{ post.body }}</p>
+                </div>
+            </div>
+            <h5 class="mt-4">
+                Clique em excluir para deletar o Post
+                </h3>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="tweet-wrap mt-3" style="border-radius:20px">
+
+                        <div>
+                            <button style="background: red" class=" btn btn-danger mt-0">Excluir!</button>
+                        </div>
+                    </div>
+                </form>
+
+
+
+                <!-- DELETE -->
+                <!-- END-DELETE -->
+        </div>
+
+    </div>
+    <!-- EndTweets -->
+
+
+
+</div>
+<!-- End Center -->
+
+
+{% endblock content %}
