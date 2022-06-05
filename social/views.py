@@ -4,11 +4,14 @@ from django.urls import reverse_lazy
 
 from django.contrib.auth.models import User
 
+from django.http import HttpResponseRedirect
 
 from .forms import PostForm, CommentForm
 from .models import Post, Comment, Profile
 
 from django.views import View
+
+from django.db.models import Q
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
@@ -18,21 +21,32 @@ from django.views.generic.edit import UpdateView, DeleteView
 
 class PostListView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        posts = Post.objects.all().order_by('-create_on')
+
+        logged_in_user = request.user
+
+        posts = Post.objects.filter(
+            author__profile__followers__in=[
+                logged_in_user.id
+            ]
+        ).order_by('-create_on')
         form = PostForm()
 
         user = self.request.user
 
         profile = Profile.objects.get(pk=user.pk)
 
+        lista_seguidores = profile.followers.all()
+
+        seguidore = Profile.objects.get(pk=user.pk)
+
         usuarios = User.objects.all().order_by('-pk')
 
-        followers = profile.followers.all()
+        followers = seguidore.followers.all()
 
         number_of_followers = len(followers)
 
         context = {'post_list': posts, 'form': form,
-                   'profile': profile, 'user': user, 'usuarios': usuarios, 'followers': number_of_followers}
+                   'profile': profile, 'user': user, 'usuarios': usuarios, 'followers': number_of_followers, 'lista_seguidores': lista_seguidores}
 
         return render(request, 'social/post_list.html', context)
 
@@ -114,6 +128,10 @@ class ProfileView(View):
         user = profile.user
         posts = Post.objects.filter(author=user).order_by('-create_on')
 
+        usuario = request.user
+
+        lista_seguidores = profile.followers.all()
+
         followers = profile.followers.all()
 
         is_following = False
@@ -128,7 +146,7 @@ class ProfileView(View):
         number_of_followers = len(followers)
 
         context = {'user': user, 'posts': posts, 'profile': profile,
-                   'is_following': is_following, 'number_of_followers': number_of_followers}
+                   'is_following': is_following, 'number_of_followers': number_of_followers, 'lista_seguidores': lista_seguidores}
 
         return render(request, 'social/profile.html', context)
 
@@ -164,3 +182,79 @@ class RemoveFollower(LoginRequiredMixin, View):
         profile.followers.remove(request.user)
 
         return redirect('profile', pk=profile.pk)
+
+
+class AddLike(LoginRequiredMixin, View):
+    def post(self, request, pk, *args, **kwargs):
+        post = Post.objects.get(pk=pk)
+
+        is_deslike = False
+
+        for deslike in post.deslikes.all():
+            if deslike == request.user:
+                is_deslike = True
+                break
+
+        if is_deslike:
+            post.deslikes.remove(request.user)
+
+        is_like = False
+
+        for like in post.likes.all():
+            if like == request.user:
+                is_like = True
+                break
+
+        if not is_like:
+            post.likes.add(request.user)
+
+        if is_like:
+            post.likes.remove(request.user)
+
+        next = request.POST.get('next', '/')
+        return HttpResponseRedirect(next)
+
+
+class AddDeslike(LoginRequiredMixin, View):
+    def post(self, request, pk, *args, **kwargs):
+        post = Post.objects.get(pk=pk)
+
+        is_like = False
+
+        for like in post.like.all():
+            if like == request.user:
+                is_like = True
+                break
+
+        if is_like:
+            post.likes.remove(request.user)
+
+        is_deslike = False
+
+        for deslike in post.deslikes.all():
+            if deslike == request.user:
+                is_deslike = True
+                break
+
+        if not is_deslike:
+            post.deslikes.add(request.user)
+
+        if is_deslike:
+            post.deslikes.remove(request.user)
+
+        next = request.POST.get('next', '/')
+        return HttpResponseRedirect(next)
+
+
+class ProfileSearch(View):
+    def get(self, request, *args, **kwargs):
+        query = self.request.GET.get('query')
+
+        profile_list = Profile.objects.filter(
+            Q(user__username__icontains=query)
+
+        ).order_by('-pk')
+
+        context = {'profile_list': profile_list}
+
+        return render(request, 'social/search.html', context)

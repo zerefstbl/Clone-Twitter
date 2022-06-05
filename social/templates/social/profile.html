@@ -18,9 +18,13 @@
 
                     <p class="card-text">{{ profile.bio }}</p>
                     <h6 class="card-title font-weight-bold">
-                        {{ number_of_followers }} Followers |
-                        100 Following
+                        <button style="margin-right: 0px; background: white; color: black" type="button"
+                            class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+                            {{ number_of_followers }} |
+                            Seguidores</button>
+
                     </h6>
+
                     <hr>
                     {% if user == request.user %}
                     {% else %}
@@ -50,9 +54,40 @@
     <!-- End Barra Izquierda -->
 
     <!-- Center -->
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div style="max-width: 600px; background: white; " class="modal-dialog" role="document">
+            <div style="background: white; " class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Seguidores</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <table>
+                        {% for seguidor in lista_seguidores %}
+                        <div class="col align-self-center mt-3">
+                            <img style="width: 50px; height: 40px;" src="{{ seguidor.profile.picture.url }}" alt=""
+                                class="avator">
+                            <a class="col-1" style="color: black;" href="{% url 'profile' seguidor.pk %}">
+                                @{{ seguidor.username }}</a>
+                        </div>
+
+                        {% empty %}
+                        <h1>Nenhum seguidor.</h1>
+                        {% endfor%}
+                    </table>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="content">
-
-
         <!-- Tweets -->
 
         <div id="tweetCards">

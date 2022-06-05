@@ -166,6 +166,7 @@ SOCIALACCOUNT_PROVIDERS = {
 
 
 LOGIN_REDIRECT_URL = 'post_list'
+LOGOUT_REDIRECT_URL = 'account_login'
 ACCOUNT_EMAIL_REQUIRED = True
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 LOGIN_URL = 'account_login'

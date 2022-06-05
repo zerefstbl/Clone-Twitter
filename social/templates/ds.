@@ -1,0 +1,238 @@
+
+
+
+
+
+
+
+
+
+
+
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What's happening?</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Asap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+
+    <link rel="shortcut icon" href="../static/img/tab-icon.png" type="image/x-icon">
+</head>
+
+<body style="background: white;">
+
+    <div class="container-fluid" style="padding: 0;">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <a class="navbar-brand" style="color: white;" href="/">
+                <!-- Twitter logo -->
+                <img src="{% static 'img/twitter-brands.svg' %}" width="30" height="30" class="d-inline-block align-top"
+                    alt="">
+                <!-- Twitter logo -->
+                Twttr Clone
+            </a>
+            <form class="form-inline" action="{% url 'search_profile' %}" method="GET">
+                <input class="form-control mr-sm-2" type="search" name="query" value="{{ request.GET.query }}"
+                    placeholder="Username" aria-label="Search">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            </form>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="hi mr-auto">
+
+                </ul>
+                <!-- Nav Bar -->
+                <a href="{% url 'account_login' %}" class="btn text-white my-2 my-sm-0" type="submit">Inicio</a>
+                <a href="{% url 'account_logout' %}" class="btn text-white my-2 my-sm-0" type="submit">Logout</a>
+                <!-- Nav Bar -->
+            </div>
+        </nav>
+    </div>
+
+    <div id="main" class="container-fluid d-flex">
+        <!-- Barra Izquierda -->
+        <div class="sidebar m-5 d-none d-md-block">
+            <div class="">
+                <div class=" card " style=" width: 18rem; text-align:center;border-radius: 20px;">
+                    {% if profile.picture %}
+                    <img class="card-img-top rounded-circle" style="width:60%; position: relative;left: 62px;"
+                        src="{{ profile.picture.url }}  " alt="Card image cap">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title font-weight-bold">{{ profile.name }}</h5>
+                        <h6 class="card-title font-weight-bold">@{{ profile.user }}</h6>
+
+
+                        <p class="card-text">{{ profile.bio }}</p>
+                        <h6 class="card-title font-weight-bold">
+                            <button style="margin-right: 0px; background: white; color: black" type="button"
+                                class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+                                {{ followers }} |
+                                Seguidor</button>
+
+                        </h6>
+                        <a href="{% url 'profile' user.pk %}" class="btn  text-white rounded-pill">Meu Perfil</a>
+                    </div>
+
+                </div>
+                <a href="{% url 'profile_edit' user.pk %}" id="addATweetLeft" onclick="addTweet()" type="button"
+                    style="border-radius: 30px; font-size: 1.1rem; font-weight:bold;"
+                    class="btn btn-lg btn-block mt-4 text-white ">Editar mi perfil</a>
+            </div>
+        </div>
+        <!-- End Barra Izquierda -->
+        {% block content %}
+        <div class="container">
+            <!-- Center -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                aria-hidden="true">
+                <div style="max-width: 600px; background: white; " class="modal-dialog" role="document">
+                    <div style="background: white; " class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Seguidores</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            {% csrf_token %}
+                            <table>
+                                {% for seguidor in lista_seguidores %}
+                                <img src="" alt="" class="avator">
+                                {{ seguidor.username }}
+                                {% endfor%}
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="inputTweetArea" class="tweet-wrap">
+                <div class="d-flex">
+                    <div class="col-xs">
+                        <!-- Image form -->
+                        {% if profile.picture %}
+                        <img src="{{ profile.picture.url }}" alt="" class="avator">
+                        <!-- Formulario -->{% endif %}
+                    </div>
+
+                    <!-- Formulario -->
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ form | crispy }}
+                        <div>
+                            <button class=" btn btn-success mt-3">Submit!</button>
+                        </div>
+                    </form>
+                    <!-- Formulario -->
+
+                </div>
+                <div class="d-flex justify-content-center mt-2">
+                </div>
+            </div>
+
+            <!-- Tweets -->
+            <div id="tweetCards">
+                <!-- FOR LOOP HERE -->{% for post in post_list %}
+                <div class="tweet-wrap" style="border-radius:20px">
+                    <div class="tweet-header">
+                        <img src="{{ post.author.profile.picture.url }}" alt="" class="avator">
+                        <div class="tweet-header-info">
+                            <span><a href="{% url 'profile' post.author.profile.pk %}">@
+                                    {{ post.author }}</a></span><span>.
+                                <a style="text-decoration: none; color: black" href="{% url 'post_detail' post.pk %}">
+
+                                    {{ post.create_on }}
+                            </span>
+                            <p> {{ post.body }}</p>
+                        </div>
+                        </a>
+                    </div>
+                    <br>
+                    <form action="{% url 'like' post.pk %}" method="POST">
+                        <div>
+                            {% csrf_token %}
+                            <button style="background: white; border: none;">
+                                <svg class="feather feather-heart sc-dnqmqq jxshSx" xmlns="http://www.w3.org/2000/svg"
+                                    width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path
+                                        d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                                    </path>
+                                </svg>
+                            </button>
+                            <div class="likes-count"> {{ post.likes.all.count }}</div>
+                        </div>
+                    </form>
+
+
+
+
+
+
+                    <!-- DELETE -->
+                    <!-- END-DELETE -->
+                </div>
+                <!-- FOR LOOP HERE -->{% endfor %}
+
+            </div>
+            <!-- EndTweets -->
+
+
+        </div>
+        <!-- End Center -->
+        {% endblock content %}
+
+
+        <!-- Barra Derecha -->
+        <div class="sidebar m-5 d-none d-xl-block">
+            <div class="card" style="width: 18rem;">
+                <div class="card-header">
+                    Who to Follow
+                </div>
+                {% for usuario in usuarios %}
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><a href="{% url 'profile' usuario.pk %}"
+                            style="text-decoration: none;color: #657787;">@{{ usuario.username }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <script src="{% static 'js/script.js' %}"></script>
+
+
+    <script>
+
+        localStorage.setItem('my-scroll-pos', $(window).scrollTop());
+        var pos = localStorage.getItem('my-scroll-pos', 0);
+        if (pos)
+            $(window).scrollTop(pos)
+
+
+    </script>
+</body>
+
+</html>

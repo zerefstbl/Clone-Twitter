@@ -13,5 +13,8 @@ urlpatterns = [
     path('profile/<int:pk>/followers/add',
          views.AddFollower.as_view(), name='add_follower'),
     path('profile/<int:pk>/follower/remove',
-         views.RemoveFollower.as_view(), name='remove_follower')
+         views.RemoveFollower.as_view(), name='remove_follower'),
+    path('post/<int:pk>/like', views.AddLike.as_view(), name='like'),
+    path('post/<int:pk>/deslikes', views.AddDeslike.as_view(), name='deslike'),
+    path('search/', views.ProfileSearch.as_view(), name='search_profile'),
 ]
