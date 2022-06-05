@@ -15,6 +15,20 @@
                 <img src="{% static 'img/tony.jpg' %}" alt="" class="avator">
                 <div class="tweet-header-info">
                     <span>@{{ post.author }}</span><span>. {{ post.create_on }}
+                        {% if request.user == post.author %}
+                        <div class="dropdown">
+                            <button style="background: black; margin-left: 300px; margin-bottom: 0px;"
+                                class="btn mt-0 btn-sm btn-secondary dropdown-toggle" type="button"
+                                id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
+                                aria-expanded="false">
+                                Opções
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <a class="dropdown-item" href="{% url 'post_delete' post.pk %}">Excluir</a>
+                                <a class="dropdown-item" href="{% url 'post_edit' post.pk %}">Editar</a>
+                            </div>
+                        </div>
+                        {% endif %}
                     </span>
                     <p>{{ post.body }}</p>
                 </div>
@@ -39,12 +53,7 @@
                     {{ form | crispy }}
                     <div>
                         <button class="btn-sm btn btn-success mt-3">Submit!</button>
-                        {% if request.user == post.author %}
-                        <a style="background: rgb(255, 255, 0); color: black; margin-right: 182px"
-                            class="mt-3 btn btn-sm btn-warning" href="{% url 'post_edit' post.pk %}">Editar</a>
-                        <a style="background: red; color: white;" class="mt-3 btn btn-warning btn-sm"
-                            href="{% url 'post_delete' post.pk %}">Excluir</a>
-                        {% endif %}
+
                     </div>
                 </div>
             </form>

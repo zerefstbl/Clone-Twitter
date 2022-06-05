@@ -17,7 +17,7 @@
     <link rel="shortcut icon" href="../static/img/tab-icon.png" type="image/x-icon">
 </head>
 
-<body>
+<body style="background: white;">
 
     <div class="container-fluid" style="padding: 0;">
         <nav class="navbar navbar-expand-lg navbar-light">
@@ -55,29 +55,28 @@
             <div class="">
                 <div class="card " style="width: 18rem; text-align:center;border-radius: 20px;">
                     <img class="card-img-top rounded-circle"
-                        style="width:60%; position: relative;left: 62px;padding-top: 20px;"
-                        src="https://i.pinimg.com/736x/ea/f2/2e/eaf22e6a189f76ed24054e2ca7feb00f.jpg"
+                        style="width:60%; position: relative;left: 62px;padding-top: 20px;" src="{{ profile.picture.url }}"
                         alt="Card image cap">
                     <div class="card-body">
-                        <h5 class="card-title font-weight-bold">Tony Stark</h5>
-                        <h6 class="card-title font-weight-bold">@iron_man</h6>
-
-
-                        <p class="card-text">You know who i am. </p>
+                        <h5 class="card-title font-weight-bold">{{ profile.name }}</h5>
+                        <h6 class="card-title font-weight-bold">@{{ profile.user }}</h6>
+    
+    
+                        <p class="card-text">{{ profile.bio }}</p>
                         <h6 class="card-title font-weight-bold">
                             100 Followers
                             100 Following
                         </h6>
-                        <a href="#" class="btn  text-white rounded-pill">Mi perfil</a>
                     </div>
-
+    
                 </div>
+                {% if request.user == profile.user %}
                 <button id="addATweetLeft" onclick="addTweet()" type="button"
                     style="border-radius: 30px; font-size: 1.1rem; font-weight:bold;"
-                    class="btn btn-lg btn-block mt-4 text-white ">Editar mi perfil</button>
+                    class="btn btn-lg btn-block mt-4 text-white ">Editar perfil</button>
+                {% endif%}
             </div>
-        </div>
-        <!-- End Barra Izquierda -->
+        </div>        <!-- End Barra Izquierda -->
 
         <!-- Center -->
         <div class="content">
@@ -198,14 +197,12 @@
                 <div class="card-header">
                     Who to Follow
                 </div>
+                {% for usuario in usuarios %}
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item"><a href="https://twitter.com/playboicarti"
-                            style="text-decoration: none;color: #657787;">@playboicarti</a></li>
-                    <li class="list-group-item"><a href="https://twitter.com/LILUZIVERT"
-                            style="text-decoration: none;color: #657787;">@LILUZIVERT</a></li>
-                    <li class="list-group-item"><a href="https://twitter.com/NARUTO_kousiki"
-                            style="text-decoration: none;color: #657787;">@NARUTO_kousiki</a></li>
+                            style="text-decoration: none;color: #657787;">@{{ usuario.username }}</a></li>
                 </ul>
+                {% endfor %}
             </div>
         </div>
     </div>

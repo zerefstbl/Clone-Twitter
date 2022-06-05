@@ -169,3 +169,6 @@ LOGIN_REDIRECT_URL = 'post_list'
 ACCOUNT_EMAIL_REQUIRED = True
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 LOGIN_URL = 'account_login'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
