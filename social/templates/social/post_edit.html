@@ -38,7 +38,7 @@
     <!-- EndTweets -->
 
 
-    <form method="POST">
+    <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="tweet-wrap mt-5" style="border-radius:20px">
             {{ form | crispy }}

@@ -2,6 +2,9 @@
 
 {% load crispy_forms_tags %}
 
+{% load custom_tags %}
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -29,13 +32,23 @@
                 <img src="{% static 'img/twitter-brands.svg' %}" width="30" height="30" class="d-inline-block align-top"
                     alt="">
                 <!-- Twitter logo -->
-                Twttr Clone
+                Clone Twitter
             </a>
             <form class="form-inline" action="{% url 'search_profile' %}" method="GET">
                 <input class="form-control mr-sm-2" type="search" name="query" value="{{ request.GET.query }}"
                     placeholder="Username" aria-label="Search">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Pesquisar</button>
             </form>
+            <div class="nav-item">
+                {% show_notifications %}
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    class="bi bi-bell-fill" viewBox="0 0 16 16">
+                    <path
+                        d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zm.995-14.901a1 1 0 1 0-1.99 0A5.002 5.002 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901z" />
+
+                </svg>
+
+            </div>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="hi mr-auto">
 
@@ -123,7 +136,7 @@
                     </div>
 
                     <!-- Formulario -->
-                    <form method="POST">
+                    <form method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
                         {{ form | crispy }}
                         <div>
@@ -152,6 +165,9 @@
                                         {{ post.create_on }}
                                 </span>
                                 <p> {{ post.body }}</p>
+                                {% if post.image %}
+                                <img src="{{ post.image.url }}" class="post-image" alt="">
+                                {% endif %}
                             </div>
                             </a>
                         </div>
@@ -206,7 +222,7 @@
         <div class="sidebar m-5 d-none d-xl-block">
             <div class="card" style="width: 18rem;">
                 <div class="card-header">
-                    Who to Follow
+                    Recomendações
                 </div>
                 {% for usuario in usuarios %}
                 <ul class="list-group list-group-flush">
@@ -231,13 +247,48 @@
     <script src="{% static 'js/script.js' %}"></script>
 
 
+    <script type="text/javascript" src="{% static 'js/social.js' %}"></script>
     <script>
+        function showNotifications() {
+            const container = document.getElementById('notification-container'); if (container.classList.contains('d-none')) {
+                container.classList.remove('d-none');
+            } else {
+                container.classList.add('d-none')
+            }
+        }
 
-        localStorage.setItem('my-scroll-pos', $(window).scrollTop());
-        var pos = localStorage.getItem('my-scroll-pos', 0);
-        if (pos)
-            $(window).scrollTop(pos)
-
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        function removeNotification(removeNotificationURL, redirectURL) {
+            var xmlhttp = new XMLHttpRequest();
+            const csrftoken = getCookie('csrftoken');
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == XMLHttpRequest.DONE) {
+                    if (xmlhttp.status == 200) {
+                        window.location.replace(redirectURL);
+                    }
+                    else {
+                        alert('There was an error.');
+                    }
+                }
+            };
+            xmlhttp.open("DELETE", removeNotificationURL, true);
+            xmlhttp.setRequestHeader("X-CSRFToken", csrftoken)
+            xmlhttp.send();
+        }
 
     </script>
 </body>

@@ -1,3 +1,5 @@
+from django.http import HttpResponse
+from .models import Notification
 from django.shortcuts import render, redirect
 
 from django.urls import reverse_lazy
@@ -52,7 +54,7 @@ class PostListView(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         posts = Post.objects.all().order_by('-create_on')
-        form = PostForm(request.POST)
+        form = PostForm(request.POST, request.FILES)
 
         user = self.request.user
 
@@ -83,7 +85,7 @@ class PostDetailView(LoginRequiredMixin, View):
 
     def post(self, request, pk, *args, **kwargs):
         post = Post.objects.get(pk=pk)
-        form = CommentForm(request.POST)
+        form = CommentForm(request.POST, request.FILES)
 
         if form.is_valid():
             new_comment = form.save(commit=False)
@@ -171,6 +173,9 @@ class AddFollower(LoginRequiredMixin, View):
 
         profile.followers.add(request.user)
 
+        notification = Notification.objects.create(
+            notification_type=3, to_user=request.user, from_user=profile.user)
+
         return redirect('profile', pk=profile.pk)
 
 
@@ -207,6 +212,9 @@ class AddLike(LoginRequiredMixin, View):
 
         if not is_like:
             post.likes.add(request.user)
+
+            notification = Notification.objects.create(
+                notification_type=1, from_user=request.user, to_user=post.author, post=post)
 
         if is_like:
             post.likes.remove(request.user)
@@ -258,3 +266,35 @@ class ProfileSearch(View):
         context = {'profile_list': profile_list}
 
         return render(request, 'social/search.html', context)
+
+
+class PostNotification(View):
+    def get(self, request, notification_pk, object_pk, *args, **kwargs):
+        notification = Notification.objects.get(pk=notification_pk)
+        post = Post.objects.get(pk=object_pk)
+
+        notification.user_has_seen = True
+        notification.save()
+
+        return redirect(post_detail, pk=object_pk)
+
+
+class FollowNotification(View):
+    def get(self, request, notification_pk, object_pk, *args, **kwargs):
+        notification = Notification.objects.get(pk=notification_pk)
+        profile = Profile.objects.get(pk=object_pk)
+
+        notification.user_has_seen = True
+        notification.save()
+
+        return redirect('profile', pk=object_pk)
+
+
+class RemoveNotification(View):
+    def delete(self, request, notification_pk, *args, **kwargs):
+        notification = Notification.objects.get(pk=notification_pk)
+
+        notification.user_has_seen = True
+        notification.save()
+
+        return HttpResponse('Success', content_type='text/plain')

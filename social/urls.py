@@ -17,4 +17,11 @@ urlpatterns = [
     path('post/<int:pk>/like', views.AddLike.as_view(), name='like'),
     path('post/<int:pk>/deslikes', views.AddDeslike.as_view(), name='deslike'),
     path('search/', views.ProfileSearch.as_view(), name='search_profile'),
+    path('notification/<int:notification_pk>/post/<int:object_pk>',
+         views.PostNotification.as_view(), name='post_notification'),
+    path('notification/<int:notification_pk>/follow/<int:object_pk>',
+         views.FollowNotification.as_view(), name='follow_notification'),
+    path('notification/delete/<int:pk>',
+         views.RemoveNotification.as_view(), name='notification_delete')
+
 ]

@@ -16,6 +16,8 @@ class Post(models.Model):
     deslikes = models.ManyToManyField(
         User, blank=True, related_name='deslikes')
     likes = models.ManyToManyField(User, blank=True, related_name='likes')
+    image = models.ImageField(
+        upload_to='media/posts_photos', blank=True, null=True)
 
 
 class Comment(models.Model):
@@ -47,3 +49,18 @@ def create_user_profile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
+
+
+class Notification(models.Model):
+    # 1 = Like, 2 = Comment, 3 = Follow
+    notification_type = models.IntegerField(null=True, blank=True)
+    to_user = models.ForeignKey(
+        User, related_name='notification_to', on_delete=models.CASCADE)
+    from_user = models.ForeignKey(
+        User, related_name='notification_from', on_delete=models.CASCADE)
+    post = models.ForeignKey('Post', related_name='+',
+                             on_delete=models.CASCADE, blank=True, null=True)
+    comment = models.ForeignKey(
+        Comment, on_delete=models.CASCADE, related_name='+', blank=True, null=True)
+    date = models.DateTimeField(default=timezone.now)
+    user_has_seen = models.BooleanField(default=False)
